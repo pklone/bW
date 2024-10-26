@@ -1,0 +1,24 @@
+services:
+ db:
+  image: mysql:5.5
+  container_name: bwapp_db
+  ports:
+   - "127.0.0.1:3306:3306"
+  environment:
+   MYSQL_ALLOW_EMPTY_PASSWORD: yes
+ 
+ app:
+  image: bwapp
+  build: .
+  container_name: bwapp_app
+  environment:
+   BWAPP_PHPINI: yes
+   BWAPP_CUSTOM_CHALLS: yes
+   BWAPP_MORE_FUN:
+  ports:
+   - "127.0.0.1:8080:80"
+  depends_on:
+   - db
+  links:
+   - db
+  tty: true
