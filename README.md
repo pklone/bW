@@ -69,7 +69,7 @@ You can also define a new environment variable if you want to enable/disable the
 
 ## Tips
 ### just
-You can also use [just](https://github.com/casey/just) to run docker commmands. See `justfile`.
+You can also use [just](https://github.com/casey/just) to run docker commands. See `justfile`.
 
 ### Build
 You can build `bwapp` image without downloading the Dockerfile.
