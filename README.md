@@ -4,7 +4,7 @@ A Docker setup for bWAPP based on `php-5.6` and `mysql-5.5`.
 ## Additional features
 - Redirect from root page to `install.php`
 - Add (and browse) custom challenges easily
-- `More fun` mode on/off
+- `More fun` mode on/off (see [install.txt](https://github.com/jehy-security/bwapp/blob/master/INSTALL.md))
 - Configurable `php.ini` file
 
 ## Quickstart
