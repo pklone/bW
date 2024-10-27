@@ -28,7 +28,7 @@ Browse to `127.0.0.1:8080`, which will redirect you to `install.php`. Create the
 > [!IMPORTANT]
 > If you need to change `db` key under `services` in `compose.yml`, remember also to update the Dockerfile. 
 > 
->     RUN sed -i 's|^\($db_server = "\).*\(";\)|\1<key>\2|' bWAPP/admin/settings php
+>     RUN sed -i 's|^\($db_server = "\).*\(";\)|\1<key>\2|' bWAPP/admin/settings.php
 
 If you want to make the db persistent, create a directory (e.g. `db`) and mount it inside db container as a volume.
 ```
