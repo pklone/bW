@@ -64,7 +64,7 @@ bwapp_config_phpini    # php.ini setup
 ```
 If you need to add a setup file, follow this template.
 ```
-COPY <<-'EOT' /usr/local/bin/<config_file>
+COPY <<-'EOT' /usr/local/bin/bwapp_config_<name>
 	# ...
 	exec "$@"
 EOT
