@@ -1,5 +1,3 @@
-# bW - bWAPP on Docker without LAMP
-
 FROM php:5.6-apache
 
 # probably useless
@@ -7,43 +5,43 @@ WORKDIR /var/www/html/
 
 # update DebianStretch sourcelist (see https://wiki.debian.org/DebianStretch#FAQ)
 RUN echo "deb http://archive.debian.org/debian stretch main" > /etc/apt/sources.list \
-	&& apt-get update \
-	&& apt-get install -y apt-transport-https \
-	&& sed -i s/http/https/ /etc/apt/sources.list
+    && apt-get update \
+    && apt-get install -y apt-transport-https \
+    && sed -i s/http/https/ /etc/apt/sources.list
 
 # install tools
 # NOTE: *-dev are required to compile gd module (see https://www.php.net/manual/en/book.image.php in "Requirements" and "Installation")
 RUN apt-get install -y \
-	libgd-dev \
-	libpng-dev \
-	libjpeg-dev \
-	wget \
-	unzip \
-	vim
+    libgd-dev \
+    libpng-dev \
+    libjpeg-dev \
+    wget \
+    unzip \
+    vim
 
 # download and install bWAPP
 RUN wget -O bwapp.zip https://sourceforge.net/projects/bwapp/files/bWAPP/bWAPPv2.2/bWAPPv2.2.zip/download \
-	&& unzip bwapp.zip 'bWAPP/*' \
-	&& rm bwapp.zip
+    && unzip bwapp.zip 'bWAPP/*' \
+    && rm bwapp.zip
 
 # install mysql/mysqli modules. The mysql module is required to run
-#	SQL Injection (Login Form/Hero)
+#   SQL Injection (Login Form/Hero)
 # and mysqli is used mostly everywhere
 RUN docker-php-ext-install \
-		mysql \
-		mysqli \
-	&& docker-php-ext-enable mysqli
+      mysql \
+	  mysqli \
+    && docker-php-ext-enable mysqli
 
 # install gd module. It is required to run
-#	Broken Authentication - CAPTCHA Bypassing
+#   Broken Authentication - CAPTCHA Bypassing
 # NOTE: ext-configure AND THEN ext-install,
-#		otherwise gd module will not work
+#       otherwise gd module will not work
 RUN docker-php-ext-configure gd \
-		--with-png-dir \
-		--with-zlib-dir \
-		--with-freetype-dir \
-		--enable-gd-native-ttf \
-	&& docker-php-ext-install gd
+      --with-png-dir \
+      --with-zlib-dir \
+      --with-freetype-dir \
+      --enable-gd-native-ttf \
+    && docker-php-ext-install gd
 
 # useful redirect from root page to bWAPP/install.php
 RUN echo '<?php header("Location: http://" . $_SERVER["HTTP_HOST"] . "/bWAPP/install.php"); ?>' > index.php
@@ -57,9 +55,9 @@ COPY custo[m]/ bWAPP/
 
 # set php.ini file
 # NOTE: timezone is necessary otherwise 
-#			SQL Injection - Stored (SQLite) 
-# 			phpinfo.php
-#		return a warning
+#         SQL Injection - Stored (SQLite) 
+#         phpinfo.php
+#       return a warning
 COPY <<-'EOT' /usr/local/bin/bwapp_config_phpini
 	#!/bin/sh
 	set -e
