@@ -29,7 +29,7 @@ RUN wget -O bwapp.zip https://sourceforge.net/projects/bwapp/files/bWAPP/bWAPPv2
 # and mysqli is used mostly everywhere
 RUN docker-php-ext-install \
       mysql \
-	  mysqli \
+      mysqli \
     && docker-php-ext-enable mysqli
 
 # install gd module. It is required to run
