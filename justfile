@@ -1,4 +1,5 @@
-shell := env('SHELL', '/bin/bash')
+# shell := env('SHELL', '/bin/bash')
+shell := '/bin/bash'
 
 default: up
 
