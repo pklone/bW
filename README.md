@@ -73,7 +73,22 @@ You can also define a new environment variable if you want to enable/disable the
 
 ## Tips
 ### just
-You can also use [just](https://github.com/casey/just) to run docker commands. See `justfile`.
+You can also use [just](https://github.com/casey/just) to run docker commands. The following commands are available.
+```
+install    # initialize bWAPP database
+on         # turn on docker daemon
+off        # turn off docker daemon
+up         # run containers
+down       # kill containers 
+start      # start containers
+stop       # stop containers
+ps         # get stopped/running containers info
+exec       # run a shell inside a container
+build      # build docker images
+config     # resolve compose.yml in canonical form
+```
+In particular, `just exec` will open a menu using `fzf` or the bash built-in menu feature `select`. Then, you can select a specific container. 
+See the `justfile` for more info.
 
 ### Build
 You can build `bwapp` image without downloading the Dockerfile.
