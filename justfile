@@ -1,6 +1,4 @@
 shell := env('SHELL', '/bin/bash')
-app_container_name := "bwapp_app"
-db_container_name  := "bwapp_db"
 
 default: up
 
@@ -67,13 +65,38 @@ ps:
 		echo "Docker deamon is stopped."
 	fi
 
-@app: up
-	echo "Get into {{app_container_name}}..."
-	docker exec -it {{app_container_name}} /bin/bash
+exec: up
+	#!{{shell}}
+	if ! command -v jq &>/dev/null; then
+	    echo "Error: jq not found"
+		exit 0
+	fi
+	
+	containers=$(docker compose ps --format json | jq -rs 'map(.Name) | @sh // empty' | tr -d \')
+	if [ -n "$containers" ]; then
+		if ! command -v fzf &>/dev/null; then
+			select container_name in $containers;
+			do
+				if [ $REPLY -ge 1 ] && [ $REPLY -le $(echo $containers | wc -w) ]; then
+					break
+				fi
+			done
+		else
+			container_name=$(echo -n "$containers" \
+				| tr ' ' '\n' \
+				| fzf --exact --reverse --border --header-first --header "ESC. quit")
+		fi
+		
+		if [ -z "${container_name}" ]; then
+			echo "Error: no container selected"
+			exit 1
+		fi
 
-@db: up
-	echo "Get into {{db_container_name}}..."
-	docker exec -it {{db_container_name}} /bin/bash
+		echo "Getting into ${container_name}..."
+		docker exec -it "${container_name}" /bin/bash
+	else
+		echo "No container available"
+	fi
 
 build: on
 	docker compose build
