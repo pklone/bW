@@ -1,3 +1,4 @@
+shell := env('SHELL', '/bin/bash')
 app_container_name := "bwapp_app"
 db_container_name  := "bwapp_db"
 
@@ -7,7 +8,7 @@ install:
 	curl http://127.0.0.1:8080/bWAPP/install.php?install=yes
 
 on:
-	#!/bin/bash
+	#!{{shell}}
 	if $(systemctl --quiet is-active docker); then
 		echo "Docker deamon is already active..."
 	else
@@ -16,14 +17,14 @@ on:
 	fi
 
 off: down
-	#!/bin/bash
+	#!{{shell}}
 	read -p "Turn off docker deamon? [Y/n] " res 
 	if [ -z "$res" ] || [ "$res" == "Y" ]; then
 		sudo systemctl stop docker docker.socket
 	fi
 
 up: on
-	#!/bin/bash
+	#!{{shell}}
 	if [ $(docker compose ps -q | wc -l) -eq 0 ]; then
 		echo "Starting containers..."
 		docker compose up -d
@@ -32,7 +33,7 @@ up: on
 	fi
 
 down:
-	#!/bin/bash
+	#!{{shell}}
 	if [ $(docker compose ps -aq | wc -l) -eq 2 ]; then
 		echo "Removing containers..."
 		docker compose down
@@ -41,7 +42,7 @@ down:
 	fi
 
 start: on
-	#!/bin/bash
+	#!{{shell}}
 	if [ $(docker compose ps -q --status exited | wc -l) -eq 2 ]; then
 		echo "Starting containers..."
 		docker compose start
@@ -50,7 +51,7 @@ start: on
 	fi
 
 stop:
-	#!/bin/bash
+	#!{{shell}}
 	if [ $(docker compose ps -q | wc -l) -eq 2 ]; then
 		echo "Stopping containers..."
 		docker compose stop
@@ -59,7 +60,7 @@ stop:
 	fi
 
 ps:
-	#!/bin/bash
+	#!{{shell}}
 	if $(systemctl --quiet is-active docker); then
 		docker compose ps -a
 	else
