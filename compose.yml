@@ -13,7 +13,7 @@ services:
   container_name: bwapp_app
   environment:
    BWAPP_PHPINI: yes
-   BWAPP_CUSTOM_CHALLS: yes
+   BWAPP_CUSTOM_CHALLS:
    BWAPP_MORE_FUN:
   ports:
    - "127.0.0.1:8080:80"
