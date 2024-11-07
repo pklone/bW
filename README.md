@@ -38,9 +38,9 @@ volumes:
 
 If you want to access to the the database, use
 ```
-docker exec -it bwapp_db mysql -u root -p
+docker exec -it bwapp_db mysql -u root
 ```
-and insert the db root password defined in `compose.yml` (just press `<enter>`).
+If the db root password defined in `compose.yml` is **not** empty, then you need to add `-p` flag.
 
 Here some useful commands to interact with db.
 ```
