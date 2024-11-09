@@ -11,6 +11,10 @@ _default:
 _install: 
 	curl http://127.0.0.1:8080/bWAPP/install.php?install=yes
 
+[private]
+run:
+	@just --choose --unsorted
+	
 # start docker daemon
 on:
 	#!{{shell}}
