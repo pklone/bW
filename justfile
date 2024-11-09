@@ -1,5 +1,9 @@
-# shell := env('SHELL', '/bin/bash')
-shell := '/bin/bash'
+set dotenv-load
+
+shell       := '/bin/bash'  # shell := env('SHELL', '/bin/bash')
+command_std := shell
+command_app := shell
+command_db  := 'mysql -u root'
 
 _default:
 	@just --list --unsorted
@@ -24,21 +28,23 @@ off: down
 	fi
 
 # run containers
-up: on
+[positional-arguments]
+up *args='-d': on
 	#!{{shell}}
 	if [ $(docker compose ps -q | wc -l) -eq 0 ]; then
 		echo "Starting containers..."
-		docker compose up -d
+		docker compose up $@
 	else
 		echo "Containers are already running..."
 	fi
 
 # kill containers
-down:
+[positional-arguments]
+down *args='':
 	#!{{shell}}
 	if [ $(docker compose ps -aq | wc -l) -ne 0 ]; then
 		echo "Removing containers..."
-		docker compose down
+		docker compose down $@
 	else
 		echo "There are no containers..."
 	fi
@@ -68,22 +74,25 @@ stop:
 	fi
 
 # show running/stopped containers info
-ps:
+ps all='':
 	#!{{shell}}
 	if $(systemctl --quiet is-active docker); then
-		docker compose ps -a
+		[ -z "{{ all }}" ] \
+			&& docker compose ps -a \
+			|| docker ps -a
 	else
 		echo "Docker deamon is stopped."
 	fi
 
-# spawn a shell inside a container
-exec: up
+# run a command inside a container
+[positional-arguments]
+exec *args='': up
 	#!{{shell}}
 	if ! command -v jq &>/dev/null; then
 	    echo "Error: jq not found"
 		exit 0
 	fi
-	
+
 	containers=$(docker compose ps --format json | jq -rs 'map(.Name) | @sh // empty' | tr -d \')
 	if [ -n "$containers" ]; then
 		if ! command -v fzf &>/dev/null; then
@@ -104,8 +113,24 @@ exec: up
 			exit 1
 		fi
 
+		if [ -n "$1" ]; then 
+			command="$@"
+		else
+			case "${container_name#*_}" in
+				app)
+					command="{{command_app}}"
+					;;
+				db)
+					command="{{command_db}}"
+					;;
+				*)
+					command="{{command_std}}"
+					;;
+			esac
+		fi
+
 		echo "Getting into ${container_name}..."
-		docker exec -it "${container_name}" /bin/bash
+		docker exec -it "${container_name}" $command
 	else
 		echo "No container available"
 	fi
