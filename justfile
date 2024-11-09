@@ -1,8 +1,7 @@
 set dotenv-load
 
-shell       := '/bin/bash'  # shell := env('SHELL', '/bin/bash')
-command_std := shell
-command_app := shell
+command_std := '/bin/bash'
+command_app := command_std
 command_db  := 'mysql -u root'
 
 _default:
@@ -14,10 +13,10 @@ _install:
 [private]
 run:
 	@just --choose --unsorted
-	
+
 # start docker daemon
 on:
-	#!{{shell}}
+	#!/bin/bash
 	if ! $(systemctl --quiet is-active docker); then
 		echo "Starting docker deamon..."
 		sudo systemctl start docker
@@ -25,7 +24,7 @@ on:
 
 # stop docker daemon
 off: down
-	#!{{shell}}
+	#!/bin/bash
 	read -p "Turn off docker deamon? [Y/n] " res 
 	if [ -z "$res" ] || [ "$res" == "Y" ]; then
 		sudo systemctl stop docker docker.socket
@@ -34,7 +33,7 @@ off: down
 # run containers
 [positional-arguments]
 up *args='-d': on
-	#!{{shell}}
+	#!/bin/bash
 	if [ $(docker compose ps -q | wc -l) -eq 0 ]; then
 		echo "Starting containers..."
 		docker compose up $@
@@ -45,7 +44,7 @@ up *args='-d': on
 # kill containers
 [positional-arguments]
 down *args='':
-	#!{{shell}}
+	#!/bin/bash
 	if [ $(docker compose ps -aq | wc -l) -ne 0 ]; then
 		echo "Removing containers..."
 		docker compose down $@
@@ -59,7 +58,7 @@ down *args='':
 
 # start containers (if they're stopped) 
 start: on
-	#!{{shell}}
+	#!/bin/bash
 	if [ $(docker compose ps -q --status exited | wc -l) -ne 0 ]; then
 		echo "Starting containers..."
 		docker compose start
@@ -69,7 +68,7 @@ start: on
 
 # stop containers (if they're running)
 stop:
-	#!{{shell}}
+	#!/bin/bash
 	if [ $(docker compose ps -q | wc -l) -ne 0 ]; then
 		echo "Stopping containers..."
 		docker compose stop
@@ -79,7 +78,7 @@ stop:
 
 # show running/stopped containers info
 ps all='':
-	#!{{shell}}
+	#!/bin/bash
 	if $(systemctl --quiet is-active docker); then
 		[ -z "{{ all }}" ] \
 			&& docker compose ps -a \
@@ -91,7 +90,7 @@ ps all='':
 # run a command inside a container
 [positional-arguments]
 exec *args='': up
-	#!{{shell}}
+	#!/bin/bash
 
 	if ! command -v jq &>/dev/null; then
 	    echo "Error: jq not found"
