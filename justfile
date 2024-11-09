@@ -45,7 +45,7 @@ down:
 
 # kill, re-build and run containers
 @restart:
-	just down && just build && just up
+	just down build up
 
 # start containers (if they're stopped) 
 start: on
