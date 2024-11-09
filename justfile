@@ -45,6 +45,10 @@ down:
 		echo "There are no containers..."
 	fi
 
+# kill, re-build and run containers
+@restart:
+	just down && just build && just up
+
 # start containers (if they're stopped) 
 start: on
 	#!{{shell}}
