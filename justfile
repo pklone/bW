@@ -1,11 +1,13 @@
 # shell := env('SHELL', '/bin/bash')
 shell := '/bin/bash'
 
-default: up
+_default:
+	@just --list
 
 install: 
 	curl http://127.0.0.1:8080/bWAPP/install.php?install=yes
 
+# start docker daemon
 on:
 	#!{{shell}}
 	if $(systemctl --quiet is-active docker); then
@@ -15,6 +17,7 @@ on:
 		sudo systemctl start docker
 	fi
 
+# stop docker daemon
 off: down
 	#!{{shell}}
 	read -p "Turn off docker deamon? [Y/n] " res 
@@ -22,6 +25,7 @@ off: down
 		sudo systemctl stop docker docker.socket
 	fi
 
+# run containers
 up: on
 	#!{{shell}}
 	if [ $(docker compose ps -q | wc -l) -eq 0 ]; then
@@ -31,6 +35,7 @@ up: on
 		echo "Containers are already running..."
 	fi
 
+# kill containers
 down:
 	#!{{shell}}
 	if [ $(docker compose ps -aq | wc -l) -eq 2 ]; then
@@ -40,6 +45,7 @@ down:
 		echo "There are no containers..."
 	fi
 
+# start containers (if they're stopped) 
 start: on
 	#!{{shell}}
 	if [ $(docker compose ps -q --status exited | wc -l) -eq 2 ]; then
@@ -49,6 +55,7 @@ start: on
 		echo "Containers are already running..."
 	fi
 
+# stop containers (if they're running)
 stop:
 	#!{{shell}}
 	if [ $(docker compose ps -q | wc -l) -eq 2 ]; then
@@ -58,6 +65,7 @@ stop:
 		echo "Containers are stopped..."
 	fi
 
+# show running/stopped containers info
 ps:
 	#!{{shell}}
 	if $(systemctl --quiet is-active docker); then
@@ -66,6 +74,7 @@ ps:
 		echo "Docker deamon is stopped."
 	fi
 
+# spawn a shell inside a container
 exec: up
 	#!{{shell}}
 	if ! command -v jq &>/dev/null; then
@@ -99,8 +108,10 @@ exec: up
 		echo "No container available"
 	fi
 
+# build images
 build: on
 	docker compose build
 
+# return compose.yml file in canonical form
 config: on
 	docker compose config
