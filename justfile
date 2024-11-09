@@ -10,9 +10,7 @@ _install:
 # start docker daemon
 on:
 	#!{{shell}}
-	if $(systemctl --quiet is-active docker); then
-		echo "Docker deamon is already active..."
-	else
+	if ! $(systemctl --quiet is-active docker); then
 		echo "Starting docker deamon..."
 		sudo systemctl start docker
 	fi
