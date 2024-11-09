@@ -2,7 +2,7 @@
 shell := '/bin/bash'
 
 _default:
-	@just --list
+	@just --list --unsorted
 
 install: 
 	curl http://127.0.0.1:8080/bWAPP/install.php?install=yes
