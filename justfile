@@ -88,52 +88,57 @@ ps all='':
 [positional-arguments]
 exec *args='': up
 	#!{{shell}}
+
 	if ! command -v jq &>/dev/null; then
 	    echo "Error: jq not found"
 		exit 0
 	fi
 
-	containers=$(docker compose ps --format json | jq -rs 'map(.Name) | @sh // empty' | tr -d \')
-	if [ -n "$containers" ]; then
-		if ! command -v fzf &>/dev/null; then
-			select container_name in $containers;
-			do
-				if [ $REPLY -ge 1 ] && [ $REPLY -le $(echo $containers | wc -w) ]; then
-					break
-				fi
-			done
-		else
-			container_name=$(echo -n "$containers" \
-				| tr ' ' '\n' \
-				| fzf --exact --reverse --border --header-first --header "ESC. quit")
-		fi
-		
-		if [ -z "${container_name}" ]; then
-			echo "Error: no container selected"
-			exit 1
-		fi
-
-		if [ -n "$1" ]; then 
-			command="$@"
-		else
-			case "${container_name#*_}" in
-				app)
-					command="{{command_app}}"
-					;;
-				db)
-					command="{{command_db}}"
-					;;
-				*)
-					command="{{command_std}}"
-					;;
-			esac
-		fi
-
-		echo "Getting into ${container_name}..."
-		docker exec -it "${container_name}" $command
-	else
-		echo "No container available"
+	containers=$(docker compose ps --format json \
+		| jq -rs 'map(.Name) | @sh // empty' \
+		| tr -d \')
+	
+	if [ -z "$containers" ]; then
+		echo "Error: no container available"
+		exit 1
 	fi
+
+	if [ -z "${EXEC_RECIPE_CHOOSER}" ]; then
+		select container_name in $containers;
+		do
+			if [ $REPLY -ge 1 ] && [ $REPLY -le $(echo $containers | wc -w) ]; then
+				break
+			fi
+		done
+	else
+		container_name=$(echo -n "$containers" \
+			| tr ' ' '\n' \
+			| bash -c "${EXEC_RECIPE_CHOOSER}")
+	fi
+	
+	if [ -z "${container_name}" ]; then
+		echo "Error: no container selected"
+		exit 1
+	fi
+
+	if [ -n "$1" ]; then 
+		command="$@"
+	else
+		case "${container_name#*_}" in
+			app)
+				command="{{command_app}}"
+				;;
+			db)
+				command="{{command_db}}"
+				;;
+			*)
+				command="{{command_std}}"
+				;;
+		esac
+	fi
+
+	echo "Getting into ${container_name}..."
+	docker exec -it "${container_name}" $command
 
 # build images
 build: on
