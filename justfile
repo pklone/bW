@@ -38,7 +38,7 @@ up: on
 # kill containers
 down:
 	#!{{shell}}
-	if [ $(docker compose ps -aq | wc -l) -eq 2 ]; then
+	if [ $(docker compose ps -aq | wc -l) -ne 0 ]; then
 		echo "Removing containers..."
 		docker compose down
 	else
@@ -48,7 +48,7 @@ down:
 # start containers (if they're stopped) 
 start: on
 	#!{{shell}}
-	if [ $(docker compose ps -q --status exited | wc -l) -eq 2 ]; then
+	if [ $(docker compose ps -q --status exited | wc -l) -ne 0 ]; then
 		echo "Starting containers..."
 		docker compose start
 	else
@@ -58,7 +58,7 @@ start: on
 # stop containers (if they're running)
 stop:
 	#!{{shell}}
-	if [ $(docker compose ps -q | wc -l) -eq 2 ]; then
+	if [ $(docker compose ps -q | wc -l) -ne 0 ]; then
 		echo "Stopping containers..."
 		docker compose stop
 	else
