@@ -2,12 +2,13 @@
 A Docker setup for bWAPP based on `php-5.6` and `mysql-5.5`.
 
 ## Additional features
-- Redirect from root page to `install.php`
+- Redirect from root page to `login.php`
 - Add (and browse) custom challenges easily
 - `More fun` mode on/off (see [install.txt](https://github.com/jehy-security/bwapp/blob/master/INSTALL.md))
 - Configurable `php.ini` file
 
 ## Quickstart
+### Run containers
 Firstly, build the `bwapp` image.
 ```
 docker compose build
@@ -20,7 +21,12 @@ You can also do everything with one command.
 ```
 docker compose up -d --build
 ```
-Browse to `127.0.0.1:8080`, which will redirect you to `install.php`. Create the database, move to `login.php` and log-in as `bee` user (with password `bug`). 
+
+### First access
+Browse to `127.0.0.1:8080/bWAPP/install.php` and initialize the database. 
+
+### General use
+Go to `127.0.0.1:8080` (which will redirect you to `login.php`) and log-in as `bee` user (with password `bug`).
 
 ## Advanced
 ### Database

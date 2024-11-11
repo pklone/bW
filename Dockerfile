@@ -43,8 +43,8 @@ RUN docker-php-ext-configure gd \
       --enable-gd-native-ttf \
     && docker-php-ext-install gd
 
-# useful redirect from root page to bWAPP/install.php
-RUN echo '<?php header("Location: http://" . $_SERVER["HTTP_HOST"] . "/bWAPP/install.php"); ?>' > index.php
+# useful redirect from root page to bWAPP/login.php
+RUN echo '<?php header("Location: http://" . $_SERVER["HTTP_HOST"] . "/bWAPP/login.php"); ?>' > index.php
 
 # change database host
 # NOTE: it must be equal to database key under "services" in "compose.yml" (i.e. "db")
