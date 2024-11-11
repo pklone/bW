@@ -1,3 +1,5 @@
-custom/
+custom/*
 challenges/
 .env
+
+!custom/

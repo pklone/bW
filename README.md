@@ -43,7 +43,10 @@ show tables;
 ```
 
 ### Custom challenges
-If you want to add other challenges, make sure `BWAPP_CUSTOM_CHALLS` is not empty. Then, create a directory `custom` and add your php files to it. 
+If you want to add other challenges, follow these steps.
+1. Set `BWAPP_CUSTOM_CHALLS` to `yes`
+2. Add your php files to `custom` directory
+3. Restart the containers
 
 > [!NOTE]
 > Inside the container, all the challenges (i.e. bwapp challenges and custom ones) will be in the same directory. 

@@ -50,9 +50,6 @@ RUN echo '<?php header("Location: http://" . $_SERVER["HTTP_HOST"] . "/bWAPP/ins
 # NOTE: it must be equal to database key under "services" in "compose.yml" (i.e. "db")
 RUN sed -i 's|^\($db_server = "\).*\(";\)|\1db\2|' bWAPP/admin/settings.php
 
-# get custom challenges from host (with a trick to ignore "custom" dir if it doesn't exist)
-COPY custo[m]/ bWAPP/
-
 # set php.ini file
 # NOTE: timezone is necessary otherwise 
 #         SQL Injection - Stored (SQLite) 
@@ -97,14 +94,15 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_custom
 	#!/bin/sh
 	set -e
 
-	if [ -n "${BWAPP_CUSTOM_CHALLS}" ]; then
-		# NOTE: last modification year for all bWAPP's files is lower or equal than 2014
-		challenges=$(find bWAPP/ -maxdepth 1 -type f -name '*.php' -printf '%TY %P\n' \
+	if [ -n "${BWAPP_CUSTOM_CHALLS}" ]; then	
+		challenges=$(find /tmp/custom_challs -type f -name '*.php' -printf '%p\n' \
 			| sort -r \
-			| awk '{if($1>2014){split($2,file,".");print file[1]","$2}}' \
+			| sed 's|.*/\(.*\)\.\(php\)|\1,\1.\2|' \
 		)
-
+		
 		if [ -n "$challenges" ]; then
+			cp -t . /tmp/custom_challs/*.php
+			
 			echo -ne \
 				'\n---------------------------  Custom  --------------------------,portal.php' \
 				"\n$challenges" \
