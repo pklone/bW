@@ -6,7 +6,8 @@ services:
    - "127.0.0.1:3306:3306"
   environment:
    MYSQL_ALLOW_EMPTY_PASSWORD: yes
- 
+  volumes:
+   - bwapp_volume:/var/lib/mysql
  app:
   image: bwapp
   build: .
@@ -22,3 +23,6 @@ services:
   links:
    - db
   tty: true
+
+volumes:
+ bwapp_volume:
