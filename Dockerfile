@@ -101,7 +101,7 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_custom
 		)
 		
 		if [ -n "$challenges" ]; then
-			cp -t . /tmp/custom_challs/*.php
+			cp -t bWAPP/ /tmp/custom_challs/*.php
 			
 			echo -ne \
 				'\n---------------------------  Custom  --------------------------,portal.php' \
