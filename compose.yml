@@ -8,7 +8,11 @@ services:
    MYSQL_ALLOW_EMPTY_PASSWORD: yes
   volumes:
    - bwapp_volume:/var/lib/mysql
- 
+  healthcheck:
+   test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+   interval: 5s
+   retries: 5
+
  app:
   image: bwapp
   build: .
@@ -22,8 +26,6 @@ services:
   ports:
    - "127.0.0.1:8080:80"
   depends_on:
-   - db
-  links:
    - db
   tty: true
 
