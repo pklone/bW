@@ -11,7 +11,8 @@ services:
   healthcheck:
    test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
    interval: 5s
-   retries: 5
+   timeout: 3s
+   retries: 3
 
  app:
   image: bwapp
@@ -26,7 +27,8 @@ services:
   ports:
    - "127.0.0.1:8080:80"
   depends_on:
-   - db
+   db:
+    condition: service_healthy
   tty: true
 
 volumes:
