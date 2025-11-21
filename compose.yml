@@ -24,6 +24,7 @@ services:
    BWAPP_PHPINI: yes
    BWAPP_CUSTOM_CHALLS: yes
    BWAPP_MORE_FUN:
+   BWAPP_AUTO_INSTALL_DB: yes
   ports:
    - "127.0.0.1:8080:80"
   depends_on:

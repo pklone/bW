@@ -156,6 +156,35 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_custom
 	exec "$@"
 EOT
 
+# automatically initialize db on start
+COPY <<-'EOT' /usr/local/bin/bwapp_config_install
+	#!/bin/sh
+	set -e
+
+	if [ -n "${BWAPP_AUTO_INSTALL_DB}" ]; then	
+		(
+			echo "${FILE_NAME} subprocess..."
+			
+			url_status='http://localhost/bWAPP/install.php'
+			url_init='http://localhost/bWAPP/install.php?install=yes'
+
+			while curl -s -o /dev/null "${url_status}"; [ $? -ne 0 ]; do
+				echo "${FILE_NAME} subprocess sleeping..."
+				sleep .2
+			done
+
+			if ! curl -s -o /dev/null "${url_init}"; then
+				echo 'Error: db initialization failed'
+				exit 1
+			fi
+
+			echo "${FILE_NAME} subprocess... Done!"
+		) &
+	fi
+	
+	exec "$@"
+EOT
+
 # update entrypoint
 COPY <<-'EOT' /usr/local/bin/bwapp_entrypoint
 	#!/bin/sh
