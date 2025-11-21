@@ -4,6 +4,8 @@ command_std := '/bin/bash'
 command_app := command_std
 command_db  := 'mysql -u root'
 
+alias rs := restart
+
 _default:
 	@just --list --unsorted
 
@@ -54,7 +56,7 @@ down *args='':
 
 # kill, re-build and run containers
 @restart:
-	just down build up
+	just down && just build && just up
 
 # start containers (if they're stopped) 
 start: on
