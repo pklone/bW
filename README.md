@@ -62,7 +62,7 @@ If you want to add other challenges, follow these steps.
 > Inside the container, all the challenges (i.e. bwapp challenges and custom ones) will be in the same directory. 
 
 ### Setup files
-`bwapp_app` container uses 3 different bash files to setup the app, i.e.
+`bwapp_app` container uses 4 different bash files to setup the app, i.e.
 ```
 bwapp_config_fun       # fun mode setup
 bwapp_config_custom    # custom challenges setup 
