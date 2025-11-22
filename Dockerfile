@@ -1,54 +1,97 @@
-FROM php:5.6-apache
+FROM debian:trixie AS keyring
 
-# probably useless
-WORKDIR /var/www/html/
+ARG DEBIAN_FRONTEND=noninteractive
 
-# update DebianStretch sourcelist (see https://wiki.debian.org/DebianStretch#FAQ)
-RUN echo "deb http://archive.debian.org/debian stretch main" > /etc/apt/sources.list \
-    && apt-get update \
-    && apt-get install -y apt-transport-https \
-    && sed -i s/http/https/ /etc/apt/sources.list
+WORKDIR /keyring
+
+# install gpg and other tools
+# NOTE: ca-certificates is an optional dependency of wget. Without it, wget cannot trust keyserver.ubuntu.com certificate.
+#       However, since ca-certificates is optional, --no-install-recommends will skip it, so we need to install it explicitly
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	wget \
+	ca-certificates \
+	gnupg2 
+
+# download DEB.SURY.ORG Automatic Signing Key (see https://deb.sury.org)
+RUN wget -O- 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x15058500a0235d97f5d10063b188e2b695bd4743' \
+	| gpg --dearmor > ppa-ondrej-php-archive-keyring.pgp
+
+# .gpg symbolic link to .pgp
+RUN ln -s ppa-ondrej-php-archive-keyring.pgp ppa-ondrej-php-archive-keyring.gpg
+
+
+FROM httpd:trixie
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /usr/local/apache2/htdocs
+
+# multi-stage building
+COPY --from=keyring /keyring/ppa-ondrej-php-archive-keyring.* /usr/share/keyrings/
 
 # install tools
-# NOTE: *-dev are required to compile gd module (see https://www.php.net/manual/en/book.image.php in "Requirements" and "Installation")
-RUN apt-get install -y \
-    libgd-dev \
-    libpng-dev \
-    libjpeg-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     unzip \
-    vim
+    vim \
+	curl \
+	less
+
+# update apt sourcelist to include deb.sury.org repository
+RUN cat <<-'EOT' >> /etc/apt/sources.list.d/debian.sources
+	
+	Types: deb
+	URIs: https://packages.sury.org/php
+	Suites: trixie
+	Components: main
+	Signed-By: /usr/share/keyrings/ppa-ondrej-php-archive-keyring.pgp
+
+EOT
+
+# install php5.6
+# NOTE: gd module is required to run
+# 	Broken Authentication - CAPTCHA Bypassing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	php5.6 \
+	php5.6-common \
+	php5.6-mysql \
+	php5.6-gd
+
+# enable php in apache config file
+RUN cat <<-'EOT' >> /usr/local/apache2/conf/httpd.conf
+
+	LoadModule php5_module /usr/lib/apache2/modules/libphp5.6.so
+	Include /etc/apache2/mods-available/php5.6.conf
+
+EOT
+
+# solve 'Apache is running a threaded MPM, but your PHP Module is not compiled to be threadsafe' error.
+# (see https://stackoverflow.com/questions/77101606/running-php-in-docker-container-httpdlatest)
+RUN sed -i /usr/local/apache2/conf/httpd.conf \
+	-e 's|^\(LoadModule mpm_event_module modules/mod_mpm_event.so\)$|#\1|' \
+	-e 's|^#\(LoadModule mpm_prefork_module modules/mod_mpm_prefork.so\)$|\1|'
+
+# add index.php as the default file that the server will serve when a directory is requested
+RUN sed -i 's|^\(\s*DirectoryIndex\).*$|\1 index.php index.html|' /usr/local/apache2/conf/httpd.conf
+
+# setting ServerName so that Apache does not complain
+RUN sed -i 's|^#\?\(ServerName\) .\+$|\1 localhost|' /usr/local/apache2/conf/httpd.conf
 
 # download and install bWAPP
 RUN wget -O bwapp.zip https://sourceforge.net/projects/bwapp/files/bWAPP/bWAPPv2.2/bWAPPv2.2.zip/download \
     && unzip bwapp.zip 'bWAPP/*' \
     && rm bwapp.zip
 
-# install mysql/mysqli modules. The mysql module is required to run
-#   SQL Injection (Login Form/Hero)
-# and mysqli is used mostly everywhere
-RUN docker-php-ext-install \
-      mysql \
-      mysqli \
-    && docker-php-ext-enable mysqli
-
-# install gd module. It is required to run
-#   Broken Authentication - CAPTCHA Bypassing
-# NOTE: ext-configure AND THEN ext-install,
-#       otherwise gd module will not work
-RUN docker-php-ext-configure gd \
-      --with-png-dir \
-      --with-zlib-dir \
-      --with-freetype-dir \
-      --enable-gd-native-ttf \
-    && docker-php-ext-install gd
-
-# useful redirect from root page to bWAPP/login.php
-RUN echo '<?php header("Location: http://" . $_SERVER["HTTP_HOST"] . "/bWAPP/login.php"); ?>' > index.php
+# useful redirect from root page to bWAPP/login.php and delete index.html (if it exists)
+RUN echo '<?php header("Location: http://" . $_SERVER["HTTP_HOST"] . "/bWAPP/login.php"); ?>' > index.html \
+	&& mv index.html index.php
 
 # change database host
 # NOTE: it must be equal to database key under "services" in "compose.yml" (i.e. "db")
 RUN sed -i 's|^\($db_server = "\).*\(";\)|\1db\2|' bWAPP/admin/settings.php
+
+# change owner from 'root' to 'www-data'
+RUN chown -R www-data:www-data bWAPP/ index.php
 
 # set php.ini file
 # NOTE: timezone is necessary otherwise 
@@ -60,9 +103,9 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_phpini
 	set -e
 	
 	if [ -n "${BWAPP_PHPINI}" ]; then
-		ini="/usr/local/etc/php/php.ini-production"
-		symlink="/usr/local/etc/php/php.ini"
-		tz=$(cat /etc/timezone)
+		ini="/usr/lib/php/5.6/php.ini-production"
+		symlink="/usr/lib/php/5.6/php.ini"
+		tz=$(date +%Z)
 
 		ln -s "$ini" "$symlink"
 		sed -i "s|;\(date\.timezone =\)|\1 \"$tz\"|" "$symlink"
@@ -122,7 +165,7 @@ COPY <<-'EOT' /usr/local/bin/bwapp_entrypoint
 
 	# first arg is `-f` or `--some-option`
 	[ "${1#-}" != "$1" ] \
-		&& set -- ${bwapp_config_args} apache2-foreground "$@" \
+		&& set -- ${bwapp_config_args} httpd-foreground "$@" \
 		|| set -- ${bwapp_config_args} "$@"
 
 	exec "$@"
@@ -134,4 +177,4 @@ EXPOSE 80
 
 ENTRYPOINT ["bwapp_entrypoint"]
 
-CMD ["apache2-foreground"]
+CMD ["httpd-foreground"]

@@ -1,5 +1,5 @@
 # bW - Docker for bWAPP without LAMP
-A Docker setup for bWAPP based on `php-5.6` and `mysql-5.5`.
+A Docker setup for bWAPP based on `ppa:ondrej/php` and `mysql-5.5`.
 
 ## Additional features
 - Redirect from root page to `login.php`
