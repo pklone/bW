@@ -53,13 +53,20 @@ show tables;
 ```
 
 ### Custom challenges
-If you want to add other challenges, follow these steps.
-1. Set `BWAPP_CUSTOM_CHALLS` to `yes`
-2. Add your php files to `custom` directory
-3. Restart the containers
 
 > [!NOTE]
 > Inside the container, all the challenges (i.e. bwapp challenges and custom ones) will be in the same directory. 
+
+If you want to add other challenges, follow these steps.
+1. Set `BWAPP_CUSTOM_CHALLS` to `yes`
+2. Add your php files to `custom` directory
+3. Restart the `app` container
+
+> [!TIP]
+> You can restart a single container by running
+>
+>     docker compose down <container> \
+>     	&& docker compose up <container> --no-deps -d
 
 ### Setup files
 `bwapp_app` container uses 4 different bash files to setup the app, i.e.
