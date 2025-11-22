@@ -87,6 +87,7 @@ on         # turn on docker daemon
 off        # turn off docker daemon
 up         # run containers
 down       # kill containers 
+restart    # kill, re-build and run containers
 start      # start containers
 stop       # stop containers
 ps         # get stopped/running containers info
