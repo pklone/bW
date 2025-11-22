@@ -102,6 +102,9 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_phpini
 	#!/bin/sh
 	set -e
 	
+	FILE_NAME="$(basename $0)"
+	echo -n "${FILE_NAME}... "
+
 	if [ -n "${BWAPP_PHPINI}" ]; then
 		ini="/usr/lib/php/5.6/php.ini-production"
 		symlink="/usr/lib/php/5.6/php.ini"
@@ -110,7 +113,8 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_phpini
 		ln -s "$ini" "$symlink"
 		sed -i "s|;\(date\.timezone =\)|\1 \"$tz\"|" "$symlink"
 	fi
-
+	
+	echo 'Done!'
 	exec "$@"
 EOT
 
@@ -118,6 +122,9 @@ EOT
 COPY <<-'EOT' /usr/local/bin/bwapp_config_fun
 	#!/bin/sh
 	set -e
+	
+	FILE_NAME="$(basename $0)"
+	echo -n "${FILE_NAME}... "
 	
 	if [ -n "${BWAPP_MORE_FUN}" ]; then
 		chmod 777 bWAPP/passwords/
@@ -129,6 +136,7 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_fun
 		fi
 	fi
 	
+	echo 'Done!'
 	exec "$@"
 EOT
 
@@ -137,6 +145,9 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_custom
 	#!/bin/sh
 	set -e
 
+	FILE_NAME="$(basename $0)"
+	echo -n "${FILE_NAME}... "
+	
 	if [ -n "${BWAPP_CUSTOM_CHALLS}" ]; then	
 		challenges=$(find /tmp/custom_challs -type f -name '*.php' -printf '%p\n' \
 			| sort -r \
@@ -153,6 +164,7 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_custom
 		fi
 	fi
 	
+	echo 'Done!'
 	exec "$@"
 EOT
 
@@ -160,6 +172,9 @@ EOT
 COPY <<-'EOT' /usr/local/bin/bwapp_config_install
 	#!/bin/sh
 	set -e
+
+	FILE_NAME="$(basename $0)"
+	echo -n "${FILE_NAME}... "
 
 	if [ -n "${BWAPP_AUTO_INSTALL_DB}" ]; then	
 		(
@@ -182,6 +197,7 @@ COPY <<-'EOT' /usr/local/bin/bwapp_config_install
 		) &
 	fi
 	
+	echo 'Done!'
 	exec "$@"
 EOT
 
@@ -190,6 +206,9 @@ COPY <<-'EOT' /usr/local/bin/bwapp_entrypoint
 	#!/bin/sh
 	set -e
 
+	FILE_NAME="$(basename $0)"
+	echo -n "${FILE_NAME}... "
+
 	bwapp_config_args=$(find /usr/local/bin/ -type f -name 'bwapp_config_*' -printf '%P ')
 
 	# first arg is `-f` or `--some-option`
@@ -197,6 +216,7 @@ COPY <<-'EOT' /usr/local/bin/bwapp_entrypoint
 		&& set -- ${bwapp_config_args} httpd-foreground "$@" \
 		|| set -- ${bwapp_config_args} "$@"
 
+	echo 'Done!'
 	exec "$@"
 EOT
 
