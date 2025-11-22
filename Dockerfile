@@ -91,7 +91,10 @@ RUN echo '<?php header("Location: http://" . $_SERVER["HTTP_HOST"] . "/bWAPP/log
 RUN sed -i 's|^\($db_server = "\).*\(";\)|\1db\2|' bWAPP/admin/settings.php
 
 # change owner from 'root' to 'www-data'
-RUN chown -R www-data:www-data bWAPP/ index.php
+# NOTE: /usr/local/apache2/htdocs dir must be writable 
+#		for 'www-data' user in order to run
+#			Cross-Domain Policy File (Flash)
+RUN chown -R www-data:www-data . index.php
 
 # set php.ini file
 # NOTE: timezone is necessary otherwise 
