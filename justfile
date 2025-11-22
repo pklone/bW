@@ -146,9 +146,9 @@ exec *args='': up
 	docker exec -it "${container_name}" $command
 
 # build images
-build: on
+@build: on
 	docker compose build
 
 # return compose.yml file in canonical form
-config: on
+@config: on
 	docker compose config
