@@ -102,7 +102,7 @@ RUN chown -R www-data:www-data . index.php
 #         phpinfo.php
 #       return a warning
 COPY <<-'EOT' /usr/local/bin/bwapp_config_phpini
-	#!/bin/sh
+	#!/bin/bash
 	set -e
 	
 	FILE_NAME="$(basename $0)"
@@ -123,7 +123,7 @@ EOT
 
 # "More fun" mode
 COPY <<-'EOT' /usr/local/bin/bwapp_config_fun
-	#!/bin/sh
+	#!/bin/bash
 	set -e
 	
 	FILE_NAME="$(basename $0)"
@@ -145,7 +145,7 @@ EOT
 
 # add custom challenges
 COPY <<-'EOT' /usr/local/bin/bwapp_config_custom
-	#!/bin/sh
+	#!/bin/bash
 	set -e
 
 	FILE_NAME="$(basename $0)"
@@ -173,7 +173,7 @@ EOT
 
 # automatically initialize db on start
 COPY <<-'EOT' /usr/local/bin/bwapp_config_install
-	#!/bin/sh
+	#!/bin/bash
 	set -e
 
 	FILE_NAME="$(basename $0)"
@@ -206,7 +206,7 @@ EOT
 
 # update entrypoint
 COPY <<-'EOT' /usr/local/bin/bwapp_entrypoint
-	#!/bin/sh
+	#!/bin/bash
 	set -e
 
 	FILE_NAME="$(basename $0)"
