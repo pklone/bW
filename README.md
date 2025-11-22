@@ -6,6 +6,7 @@ A Docker setup for bWAPP based on `ppa:ondrej/php` and `mysql-5.5`.
 - Add (and browse) custom challenges easily
 - `More fun` mode on/off (see [install.txt](https://github.com/jehy-security/bwapp/blob/master/INSTALL.md))
 - Configurable `php.ini` file
+- Database init on start
 
 ## Quickstart
 ### Run containers
@@ -24,6 +25,9 @@ docker compose up -d --build
 
 ### First access
 Browse to `127.0.0.1:8080/bWAPP/install.php` and initialize the database. 
+
+> [!TIP]
+> If `BWAPP_AUTO_INSTALL_DB` is equal to `yes`, the database will be initialized automatically.
 
 ### General use
 Go to `127.0.0.1:8080` (which will redirect you to `login.php`) and log-in as `bee` user (with password `bug`).
@@ -63,6 +67,7 @@ If you want to add other challenges, follow these steps.
 bwapp_config_fun       # fun mode setup
 bwapp_config_custom    # custom challenges setup 
 bwapp_config_phpini    # php.ini setup
+bwapp_config_install   # db init
 ```
 If you need to add a setup file, follow this template.
 ```
